@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { HttpError, ctrlWrapper } = require("../helpers");
 const { SECRET_KEY } = process.env;
+
 const register = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -51,9 +52,30 @@ const logout = async (req, res) => {
   res.status(204).json({ message: "logout success" });
 };
 
+const subscriptionUpd = async (req, res) => {
+  const allowedSubscriptions = ["starter", "pro", "business"];
+  const { _id } = req.user;
+  const { newSubscription } = req.body;
+  if (!allowedSubscriptions.includes(newSubscription)) {
+    throw HttpError(
+      400,
+      "Choose one of subscription : 'starter', 'pro' or 'business'."
+    );
+  }
+
+  const user = await User.findByIdAndUpdate(
+    _id,
+    { subscription: newSubscription },
+    { new: true }
+  );
+  res.status(201).json(user);
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
+
+  subscriptionUpd: ctrlWrapper(subscriptionUpd),
 };

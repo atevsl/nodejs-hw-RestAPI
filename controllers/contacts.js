@@ -3,22 +3,22 @@ const { Contact } = require("../models/contact");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const getAll = async (req, res) => {
-  console.log(req);
   const { _id: owner } = req.user;
-  const { page = 1, limit = 20 } = req.query;
+  const { page = 1, limit = 20, favorite = null } = req.query;
   const skip = (page - 1) * limit;
-  const result = await Contact.find({ owner }, null, { skip, limit }).populate(
-    "owner"
-  );
+  const result = await Contact.find({ owner }, null, {
+    skip,
+    limit,
+  }).populate("owner");
+  if (favorite) {
+    result.map((item) => (item.favorite = favorite));
+  }
   res.status(200).json(result);
 };
 
 const getById = async (req, res) => {
   const { contactId } = req.params;
-  console.log("contactId", contactId);
   const result = await Contact.findById(contactId);
-
-  console.log("result", result);
   if (!result) {
     throw HttpError(404, "Not found");
   }
