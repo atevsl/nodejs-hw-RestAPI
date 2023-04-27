@@ -30,15 +30,19 @@ const userSchema = new Schema(
 userSchema.post("save", handleMongooseError);
 
 const registerSchema = Joi.object({
-  password: Joi.string().required(),
-  email: Joi.string().required(),
+  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{6,30}$")).required(),
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required(),
   subscription: Joi.string(),
   token: Joi.string(),
 });
 
 const loginSchema = Joi.object({
-  password: Joi.string().required(),
-  email: Joi.string().required(),
+  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{6,30}$")).required(),
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required(),
 });
 
 const schemas = {
